@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Abrir app</title>
+<style>
+  :root{color-scheme:light dark;--bg:#f8f9f6;--ink:#16191c;--muted:#5a6266}
+  @media (prefers-color-scheme:dark){:root{--bg:#181c1f;--ink:#e7e5de;--muted:#a9b0ad}}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;text-align:center}
+  a.go{display:inline-block;padding:16px 28px;border:2px solid var(--ink);border-radius:12px;color:var(--ink);text-decoration:none;font-size:20px;font-weight:600}
+  p{color:var(--muted);font-size:14px;margin:14px 24px}
+</style>
+</head>
+<body>
+<main>
+  <a class="go" id="go" href="#">Abrir</a>
+  <p id="msg">Abriendo…</p>
+</main>
+<script>
+// Página trampolín para abrir apps de Android desde The Dispatch.
+// Uso: ?app=zijronot  o  ?app=matriz
+const APPS={
+  zijronot:{nombre:"Zijronot",scheme:"zijronot",pkg:"com.jaimetbeili.zijronot"},
+  matriz:{nombre:"Matriz",scheme:"matriz",pkg:"com.jaime.matriz"}
+};
+const app=APPS[new URLSearchParams(location.search).get("app")];
+const go=document.getElementById("go"),msg=document.getElementById("msg");
+if(!app){go.style.display="none";msg.textContent="App desconocida."}
+else{
+  const url=`intent://abrir#Intent;scheme=${app.scheme};package=${app.pkg};end`;
+  go.href=url;go.textContent="Abrir "+app.nombre;document.title="Abrir "+app.nombre;
+  let salio=false;
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden)salio=true;
+    else if(salio){try{window.close()}catch(e){}}
+  });
+  location.href=url;
+  setTimeout(()=>{if(!salio)msg.textContent="Si no se abrió sola, toca el botón."},1200);
+}
+</script>
+</body>
+</html>
